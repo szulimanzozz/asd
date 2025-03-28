@@ -1,0 +1,62 @@
+hostname ShopFirewall
+domain-name hyperlan.com
+enable password Hyperlan123
+
+interface GigabitEthernet1/1
+nameif outside
+security-level 0
+ip address 20.20.20.2 255.255.255.252
+
+interface GigabitEthernet1/2
+nameif dmz
+security-level 50
+ip address 192.168.15.1 255.255.255.0
+ipv6 address FD00:15::1/64
+ipv6 nd managed-config-flag
+
+interface GigabitEthernet1/3
+nameif inside
+security-level 100
+ip address 192.168.16.1 255.255.255.0
+
+interface Management1/1
+management-only
+no nameif
+no security-level
+no ip address
+shutdown
+
+object network INSIDE_NET
+subnet 192.168.16.0 255.255.255.0
+nat (inside,outside) dynamic interface
+
+route outside 0.0.0.0 0.0.0.0 20.20.20.1 1
+
+access-list INSIDE_DMZ_ACL extended permit ip 192.168.16.0 255.255.255.0 192.168.15.0 255.255.255.0
+access-list INSIDE_DMZ_ACL extended permit udp host 192.168.15.1 eq bootps 192.168.15.0 255.255.255.0
+access-list DMZ_TO_INSIDE extended permit ip 192.168.15.0 255.255.255.0 192.168.16.0 255.255.255.0
+access-list DMZ_TO_INSIDE extended permit udp 192.168.15.0 255.255.255.0 host 192.168.15.1 eq bootpc
+access-list DMZ_TO_INSIDE extended permit udp any any eq bootps
+access-list DMZ_TO_INSIDE extended permit udp any any eq bootpc
+access-list INSIDE_TO_OUTSIDE extended permit ip 192.168.16.0 255.255.255.0 any
+access-list OUTSIDE_TO_INSIDE extended permit ip any 192.168.16.0 255.255.255.0
+
+access-group DMZ_TO_INSIDE in interface dmz
+access-group INSIDE_TO_OUTSIDE in interface inside
+access-group OUTSIDE_TO_INSIDE in interface outside
+aaa authentication ssh console LOCAL
+
+username hyperlan password Hyperlan123
+
+telnet timeout 5
+ssh timeout 10
+
+dhcpd dns 192.168.16.5
+dhcpd option 3 ip 192.168.15.1
+
+dhcpd address 192.168.15.100-192.168.15.200 dmz
+dhcpd enable dmz
+
+ipv6 router ospf 1
+router-id 8.8.8.8
+log-adjacency-changes

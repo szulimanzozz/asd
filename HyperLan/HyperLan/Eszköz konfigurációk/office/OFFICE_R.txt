@@ -1,0 +1,232 @@
+service password-encryption
+security passwords min-length 10
+
+hostname OFFICE_R
+
+login block-for 120 attempts 3 within 60
+
+enable password Hyperlan123
+
+ip dhcp pool VLAN_10
+network 192.168.10.0 255.255.255.248
+default-router 192.168.10.1
+dns-server 200.100.50.26
+domain-name office.hyperlan.com
+ip dhcp pool VLAN_20
+network 192.168.10.8 255.255.255.248
+default-router 192.168.10.9
+dns-server 200.100.50.26
+domain-name office.hyperlan.com
+ip dhcp pool VLAN_30
+network 192.168.10.16 255.255.255.248
+default-router 192.168.10.17
+dns-server 200.100.50.26
+domain-name office.hyperlan.com
+ip dhcp pool VLAN_40
+network 192.168.11.0 255.255.255.248
+default-router 192.168.11.1
+dns-server 200.100.50.26
+domain-name office.hyperlan.com
+ip dhcp pool VLAN_50
+network 192.168.11.8 255.255.255.248
+default-router 192.168.11.9
+dns-server 200.100.50.26
+domain-name office.hyperlan.com
+ip dhcp pool VLAN_60
+network 192.168.11.16 255.255.255.248
+default-router 192.168.11.17
+dns-server 200.100.50.26
+domain-name office.hyperlan.com
+
+ipv6 unicast-routing
+
+ipv6 dhcp pool DHCPV6_10_0
+address prefix fd00:10::/64 lifetime 172800 86400
+dns-server FD00:0:0:27::5
+domain-name office.hyperlan.com
+
+ipv6 dhcp pool DHCPV6_10_8
+address prefix fd00:10:8::/64 lifetime 172800 86400
+dns-server FD00:0:0:27::5
+domain-name office.hyperlan.com
+
+ipv6 dhcp pool DHCPV6_10_16
+address prefix fd00:10:16::/64 lifetime 172800 86400
+dns-server FD00:0:0:27::5
+domain-name office.hyperlan.com
+
+ipv6 dhcp pool DHCPV6_11_0
+address prefix fd00:11::/64 lifetime 172800 86400
+dns-server FD00:0:0:27::5
+domain-name office.hyperlan.com
+
+ipv6 dhcp pool DHCPV6_11_8
+address prefix fd00:11:8::/64 lifetime 172800 86400
+dns-server FD00:0:0:27::5
+domain-name office.hyperlan.com
+
+ipv6 dhcp pool DHCPV6_11_16
+address prefix fd00:11:16::/64 lifetime 172800 86400
+dns-server FD00:0:0:27::5
+domain-name office.hyperlan.com
+
+username hyperlan password Hyperlan123
+
+ip domain-name hyperlan.com
+
+spanning-tree mode pvst
+
+interface Tunnel0
+ip address 192.168.100.1 255.255.255.252
+mtu 1476
+ipv6 address FD00:100::1/64
+tunnel source Serial0/1/1
+tunnel destination 200.100.50.26
+
+interface GigabitEthernet0/0/0
+no ip address
+ip nat inside
+duplex auto
+speed auto
+
+interface GigabitEthernet0/0/0.10
+encapsulation dot1Q 10
+ip address 192.168.10.1 255.255.255.248
+ipv6 address FE80::1 link-local
+ipv6 address FD00:10::1/64
+ipv6 nd managed-config-flag
+ipv6 dhcp server DHCPV6_10_0
+
+interface GigabitEthernet0/0/0.20
+encapsulation dot1Q 20
+ip address 192.168.10.9 255.255.255.248
+ipv6 address FE80::1 link-local
+ipv6 address FD00:10:8::1/64
+ipv6 nd managed-config-flag
+ipv6 dhcp server DHCPV6_10_8
+
+interface GigabitEthernet0/0/0.30
+encapsulation dot1Q 30
+ip address 192.168.10.17 255.255.255.248
+ipv6 address FE80::1 link-local
+ipv6 address FD00:10:16::1/64
+ipv6 nd managed-config-flag
+ipv6 dhcp server DHCPV6_10_16
+
+interface GigabitEthernet0/0/0.40
+encapsulation dot1Q 40
+ip address 192.168.11.1 255.255.255.248
+ipv6 address FE80::1 link-local
+ipv6 address FD00:11::1/64
+ipv6 nd managed-config-flag
+ipv6 dhcp server DHCPV6_11_0
+
+interface GigabitEthernet0/0/0.50
+encapsulation dot1Q 50
+ip address 192.168.11.9 255.255.255.248
+ipv6 address FE80::1 link-local
+ipv6 address FD00:11:8::1/64
+ipv6 nd managed-config-flag
+ipv6 dhcp server DHCPV6_11_8
+
+interface GigabitEthernet0/0/0.60
+encapsulation dot1Q 60
+ip address 192.168.11.17 255.255.255.248
+ipv6 address FE80::1 link-local
+ipv6 address FD00:11:16::1/64
+ipv6 nd managed-config-flag
+ipv6 dhcp server DHCPV6_11_16
+
+interface GigabitEthernet0/0/0.99
+encapsulation dot1Q 99 native
+ip address 192.168.99.1 255.255.255.0
+ipv6 address FE80::1 link-local
+ipv6 address FD00:99::1/64
+
+interface GigabitEthernet0/0/0.1000
+encapsulation dot1Q 1000
+ip address 192.168.1.1 255.255.255.0
+ipv6 address FE80::1 link-local
+ipv6 address FD00:1::1/64
+
+interface GigabitEthernet0/0/1
+ip address 192.168.30.1 255.255.255.252
+duplex auto
+speed auto
+
+interface Serial0/1/0
+ip address 200.100.50.10 255.255.255.248
+ip nat outside
+ipv6 address FE80::1 link-local
+ipv6 address 2001:DB8:0:8::10/64
+ipv6 ospf 1 area 0
+clock rate 2000000
+
+interface Serial0/1/1
+ip address 200.100.50.2 255.255.255.248
+ip nat outside
+ipv6 address FE80::1 link-local
+ipv6 address 2001:DB8::2/64
+ipv6 ospf 1 area 0
+clock rate 2000000
+
+router ospf 1
+router-id 5.5.5.5
+log-adjacency-changes
+passive-interface GigabitEthernet0/0/0
+passive-interface GigabitEthernet0/0/1
+network 192.168.11.0 0.0.0.7 area 0
+network 192.168.11.8 0.0.0.7 area 0
+network 192.168.11.16 0.0.0.7 area 0
+network 192.168.10.0 0.0.0.7 area 0
+network 192.168.10.16 0.0.0.7 area 0
+network 192.168.10.8 0.0.0.7 area 0
+network 192.168.99.0 0.0.0.255 area 0
+network 192.168.1.0 0.0.0.255 area 0
+network 200.100.50.0 0.0.0.7 area 0
+network 200.100.50.8 0.0.0.7 area 0
+network 200.100.99.0 0.0.0.255 area 0
+network 200.100.1.0 0.0.0.255 area 0
+network 192.168.30.0 0.0.0.3 area 0
+default-information originate
+
+ipv6 router ospf 1
+router-id 5.5.5.5
+log-adjacency-changes
+passive-interface GigabitEthernet0/0/0
+passive-interface GigabitEthernet0/0/1
+
+ip nat inside source list 1 interface Serial0/1/1 overload
+ip nat inside source static 192.168.0.0 200.100.50.10 
+ip nat inside source static 192.168.0.0 200.100.50.2 
+ip classless
+
+ip access-list extended sl_def_acl
+deny tcp any any eq telnet
+deny tcp any any eq www
+deny tcp any any eq 22
+permit tcp any any eq 22
+access-list 1 permit 192.168.10.0 0.0.0.7
+access-list 1 permit 192.168.10.8 0.0.0.7
+access-list 1 permit 192.168.10.16 0.0.0.7
+access-list 1 permit 192.168.11.16 0.0.0.7
+access-list 1 permit 192.168.11.8 0.0.0.7
+access-list 1 permit 192.168.11.0 0.0.0.7
+
+banner login ^eszkoz mukodik^
+banner motd ^Ez az eszkoz a HyperLan tulajdonaban all, idegeneknek tilos a belepes^
+
+line con 0
+logging synchronous
+login local
+line aux 0
+
+line vty 0 4
+logging synchronous
+login local
+transport input ssh
+line vty 5 15
+logging synchronous
+login local
+
+end

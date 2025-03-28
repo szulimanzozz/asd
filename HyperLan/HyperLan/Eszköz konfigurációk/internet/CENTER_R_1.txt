@@ -1,0 +1,74 @@
+service password-encryption
+security passwords min-length 10
+
+hostname CENTER_R_1
+
+login block-for 120 attempts 3 within 60
+
+enable password Hyperlan123
+
+ipv6 unicast-routing
+
+username hyperlan password Hyperlan123
+
+ip domain-name hyperlan.com
+
+spanning-tree mode pvst
+
+interface Loopback0
+ip address 200.200.50.2 255.255.255.0
+ipv6 address FE80::1 link-local
+ipv6 address 2001:DB8:200::2/64
+
+interface GigabitEthernet0/0/0
+ip address 200.100.50.42 255.255.255.248
+duplex auto
+speed auto
+ipv6 address FE80::1 link-local
+ipv6 address 2001:DB8:0:40::42/64
+ipv6 ospf 1 area 0
+
+interface Serial0/1/0
+ip address 200.100.50.25 255.255.255.248
+ipv6 address FE80::1 link-local
+ipv6 address 2001:DB8:0:24::25/64
+ipv6 ospf 1 area 0
+
+interface Serial0/1/1
+ip address 200.100.50.1 255.255.255.248
+ipv6 address FE80::1 link-local
+ipv6 address 2001:DB8::1/64
+ipv6 ospf 1 area 0
+
+router ospf 1
+router-id 2.2.2.2
+log-adjacency-changes
+network 200.100.50.0 0.0.0.3 area 0
+network 200.100.50.24 0.0.0.3 area 0
+network 200.100.50.0 0.0.0.7 area 0
+network 200.100.50.24 0.0.0.7 area 0
+network 200.100.50.40 0.0.0.7 area 0
+network 200.200.50.0 0.0.0.255 area 0
+
+ipv6 router ospf 1
+router-id 2.2.2.2
+log-adjacency-changes
+
+banner login ^eszkoz mukodik^
+banner motd ^TEz az eszkoz a HyperLan tulajdonaban all, idegeneknek tilos a belepes^
+
+line con 0
+logging synchronous
+login local
+
+line aux 0
+
+line vty 0 4
+logging synchronous
+login local
+transport input ssh
+line vty 5 15
+logging synchronous
+login local
+
+end

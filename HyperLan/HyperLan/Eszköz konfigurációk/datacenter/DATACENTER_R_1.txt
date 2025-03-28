@@ -1,0 +1,105 @@
+service password-encryption
+security passwords min-length 10
+
+hostname DATACENTER_R_1
+
+login block-for 120 attempts 3 within 60
+
+enable password Hyperlan123
+
+ipv6 unicast-routing
+
+username hyperlan password Hyperlan123
+
+ip domain-name hyperlan.com
+
+spanning-tree mode pvst
+
+interface Tunnel0
+ip address 192.168.100.2 255.255.255.252
+ipv6 address FD00:100::2/64
+tunnel source Serial0/1/0
+tunnel destination 200.100.50.2
+
+interface GigabitEthernet0/0/0
+no ip address
+ip helper-address 10.0.0.7
+duplex auto
+speed auto
+
+interface GigabitEthernet0/0/0.10
+encapsulation dot1Q 10
+ip address 10.0.0.1 255.255.255.224
+ip nat inside
+ipv6 address FE80::1 link-local
+ipv6 address FD00:0:0:27::1/64
+standby version 2
+standby 1 ip 10.0.0.30
+standby 1 priority 200
+standby 1 preempt
+standby 2 ip 10.0.0.29
+standby 2 preempt
+
+interface Serial0/1/0
+ip address 200.100.50.26 255.255.255.248
+ip nat outside
+ipv6 address FE80::1 link-local
+ipv6 address 2001:DB8:0:24::26/64
+ipv6 ospf 1 area 0
+clock rate 2000000
+
+router ospf 1
+router-id 3.3.3.3
+log-adjacency-changes
+network 10.0.0.0 0.0.0.31 area 0
+network 200.100.50.24 0.0.0.7 area 0
+default-information originate
+
+ipv6 router ospf 1
+router-id 3.3.3.3
+log-adjacency-changes
+passive-interface GigabitEthernet0/0/0
+
+ip nat inside source list 1 interface Serial0/1/0 overload
+ip nat inside source static tcp 10.0.0.5 53 200.100.50.26 53 
+ip nat inside source static tcp 10.0.0.5 80 200.100.50.26 80 
+ip nat inside source static tcp 10.0.0.6 389 200.100.50.26 389 
+ip nat inside source static tcp 10.0.0.7 21 200.100.50.26 21 
+ip nat inside source static udp 10.0.0.5 53 200.100.50.26 53 
+
+ip route 0.0.0.0 0.0.0.0 Serial0/1/0 
+
+ipv6 route ::/0 Serial0/1/0
+
+ip access-list extended sl_def_acl
+deny tcp any any eq telnet
+deny tcp any any eq www
+deny tcp any any eq 22
+permit tcp any any eq 22
+permit tcp any any eq www
+permit tcp any any eq telnet
+permit tcp any any eq ftp
+permit tcp any any eq domain
+access-list 1 permit host 10.0.0.5
+access-list 1 permit host 10.0.0.6
+access-list 1 permit host 10.0.0.7
+access-list 1 permit any
+
+banner login ^eszkoz mukodik^
+banner motd ^Ez az eszkoz a HyperLan tulajdonaban all, idegeneknek tilos a belepes^
+
+line con 0
+logging synchronous
+login local
+
+line aux 0
+
+line vty 0 4
+logging synchronous
+login local
+transport input ssh
+line vty 5 15
+logging synchronous
+login local
+
+end

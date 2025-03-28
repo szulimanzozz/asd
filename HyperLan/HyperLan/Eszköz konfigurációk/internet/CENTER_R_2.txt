@@ -1,0 +1,93 @@
+service password-encryption
+security passwords min-length 10
+
+hostname CENTER_R_2
+
+login block-for 120 attempts 3 within 60
+
+enable password Hyperlan123
+
+ip dhcp excluded-address 200.100.50.32 200.100.50.35
+
+ip dhcp pool HOME_NETWORK
+network 200.100.50.32 255.255.255.248
+default-router 200.100.50.33
+dns-server 10.0.0.1
+domain-name isp.hyperlan.com
+
+ipv6 unicast-routing
+
+username hyperlan password Hyperlan123
+
+ip domain-name hyperlan.com
+
+spanning-tree mode pvst
+
+interface GigabitEthernet0/0/0
+ip address 200.100.50.33 255.255.255.248
+duplex auto
+speed auto
+ipv6 address FE80::1 link-local
+ipv6 address 2001:DB8:0:32::33/64
+
+interface GigabitEthernet0/0/1
+ip address 200.100.50.41 255.255.255.248
+duplex auto
+speed auto
+ipv6 address FE80::1 link-local
+ipv6 address 2001:DB8:0:40::41/64
+ipv6 ospf 1 area 0
+
+interface Serial0/1/0
+ip address 200.100.50.17 255.255.255.248
+ipv6 address FE80::1 link-local
+ipv6 address 2001:DB8:0:16::17/64
+ipv6 ospf 1 area 0
+
+interface Serial0/1/1
+ip address 200.100.50.9 255.255.255.248
+ipv6 address FE80::1 link-local
+ipv6 address 2001:DB8:0:8::9/64
+ipv6 ospf 1 area 0
+
+interface Serial0/2/0
+ip address 200.100.50.49 255.255.255.248
+ipv6 address FE80::1 link-local
+ipv6 address 2001:DB8:0:48::1/64
+ip ospf 1 area 0
+
+router ospf 1
+router-id 1.1.1.1
+log-adjacency-changes
+network 200.100.50.8 0.0.0.3 area 0
+network 200.100.50.32 0.0.0.3 area 0
+network 200.100.50.16 0.0.0.3 area 0
+network 200.100.50.8 0.0.0.7 area 0
+network 200.100.50.32 0.0.0.7 area 0
+network 200.100.50.16 0.0.0.7 area 0
+network 200.100.50.40 0.0.0.7 area 0
+network 200.100.50.48 0.0.0.7 area 0
+
+ipv6 router ospf 1
+router-id 1.1.1.1
+log-adjacency-changes
+passive-interface GigabitEthernet0/0/0
+
+banner login ^eszkoz mukdik^
+banner motd ^Ez az eszkoz a HyperLan tulajdonban all, idegeneknek tilos a belepes^
+
+line con 0
+logging synchronous
+login local
+
+line aux 0
+
+line vty 0 4
+logging synchronous
+login local
+transport input ssh
+line vty 5 15
+logging synchronous
+login local
+
+end

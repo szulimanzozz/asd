@@ -1,0 +1,36 @@
+service password-encryption
+
+hostname SHOP_SW_1
+
+enable secret Hyperlan123
+
+ip ssh version 2
+ip ssh time-out 60
+ip domain-name shop.hyperlan.com
+
+username hyperlan password Hyperlan123
+
+spanning-tree mode pvst
+
+interface Vlan1
+ip address 192.168.15.2 255.255.255.0
+ip helper-address 192.168.15.1
+
+ip default-gateway 192.168.15.1
+
+banner motd ^Ez az eszkoz a Hyperlan tulajdonaban all! Tilos illetekteleneknek a belepes^
+
+line con 0
+logging synchronous
+login local
+
+line vty 0 4
+logging synchronous
+login local
+transport input ssh
+line vty 5 15
+logging synchronous
+login local
+transport input ssh
+
+end
